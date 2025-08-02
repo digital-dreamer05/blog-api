@@ -1,0 +1,51 @@
+{
+  "name": "blog-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "dotenv -e .env node ./migrations/index.js",
+    "start": "dotenv -e .env node server.js",
+    "dev": "dotenv -e .env nodemon server.js",
+    "db": "dotenv -e .env -- sequelize-cli db:create --config ./sequelizeConfigs.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digital-dreamer05/blog-api.git"
+  },
+  "keywords": [],
+  "author": "Digital Dreamer",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/digital-dreamer05/blog-api/issues"
+  },
+  "homepage": "https://github.com/digital-dreamer05/blog-api#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "express-flash": "^0.0.2",
+    "express-session": "^1.18.2",
+    "ioredis": "^5.6.1",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "mysql2": "^3.14.2",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0",
+    "sequelize": "^6.37.7",
+    "sharp": "^0.34.3",
+    "slugify": "^1.6.6",
+    "svg-captcha": "^1.4.0",
+    "uuid": "^11.1.0",
+    "yup": "^1.6.1"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^9.0.0",
+    "nodemon": "^3.1.10",
+    "sequelize-cli": "^6.6.3"
+  }
+}
