@@ -1,5 +1,4 @@
 const { DataTypes } = require('sequelize');
-const { create } = require('svg-captcha');
 
 const User = (sequelize) => {
   return sequelize.define(
