@@ -5,6 +5,7 @@ const User = (sequelize) => {
     'user',
     {
       id: {
+        allowNull: false,
         type: DataTypes.INTEGER.UNSIGNED,
         primaryKey: true,
         autoIncrement: true,
@@ -19,6 +20,7 @@ const User = (sequelize) => {
       username: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
       },
       email: {
         type: DataTypes.STRING,
