@@ -20,7 +20,7 @@ module.exports = {
     google: {},
   },
 
-  redis: {},
+  redis: { uri: process.env.REDIS_URI },
 
   damin: process.env.DOMIN,
 
