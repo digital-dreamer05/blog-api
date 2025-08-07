@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "migrate": "dotenv -e .env node ./migrations/index.js",
     "start": "dotenv -e .env node server.js",
     "dev": "dotenv -e .env nodemon server.js",
-    "db": "dotenv -e .env -- sequelize-cli db:create --config ./sequelizeConfigs.js"
+    "db": "dotenv -e .env -- sequelize-cli db:create --config ./sequelizeConfigs.js",
+    "migrate": "dotenv -e .env -- sequelize-cli db:migrate --config ./sequelizeConfigs.js"
   },
   "repository": {
     "type": "git",
