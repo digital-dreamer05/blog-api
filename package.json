@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "dotenv -e .env node server.js",
-    "dev": "dotenv -e .env nodemon server.js",
+    "dev": "dotenv -e .env -- nodemon server.js",
     "db": "dotenv -e .env -- sequelize-cli db:create --config ./sequelizeConfigs.js",
     "migrate": "dotenv -e .env -- sequelize-cli db:migrate --config ./sequelizeConfigs.js"
   },
@@ -22,9 +22,11 @@
   },
   "homepage": "https://github.com/digital-dreamer05/blog-api#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-flash": "^0.0.2",
     "express-session": "^1.18.2",
