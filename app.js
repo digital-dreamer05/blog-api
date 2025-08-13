@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const passport = require('passport');
 
-const localStrategy = require('./passport/localStrategy');
+const localStrategy = require('./strategies/localStrategy');
 const captchaController = require('./controllers/captchaController');
 const authRoutes = require('./routes/authRoutes');
 const articleRoutes = require('./routes/articleRoutes');
@@ -19,10 +19,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.resolve(__dirname, 'public')));
 app.use(passport.initialize());
 
-app.use(localStrategy);
+passport.use(localStrategy);
 
-app.get('/captcha', captchaController.getCaptcha);
-app.get('/auth', authRoutes);
-app.get('/articles', articleRoutes);
+// app.get('/captcha', captchaController.getCaptcha);
+app.use('/auth', authRoutes);
+app.use('/articles', articleRoutes);
+app.use('/', (req, res) => {
+  res.render('home');
+});
 
 module.exports = app;
