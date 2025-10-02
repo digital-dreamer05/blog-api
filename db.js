@@ -1,10 +1,6 @@
 const { Sequelize } = require('sequelize');
 const configs = require('./configs');
 
-const Tag = require('./models/Tag');
-const TagsArticles = require('./models/TagsArticles');
-const Article = require('./models/Article');
-
 const db = new Sequelize({
   host: configs.db.host,
   port: configs.db.port,
@@ -55,4 +51,4 @@ Tag.belongsToMany(Article, {
   foreignKey: 'tag_id',
 });
 
-module.exports = db;
+module.exports = { db, User, Tag, Article, TagsArticles };
