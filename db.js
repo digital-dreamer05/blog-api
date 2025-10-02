@@ -1,6 +1,7 @@
 const { Sequelize } = require('sequelize');
 const configs = require('./configs');
 
+/*
 const db = new Sequelize({
   host: configs.db.host,
   port: configs.db.port,
@@ -10,6 +11,27 @@ const db = new Sequelize({
   dialect: configs.db.dialect,
   logging: configs.isProduction ? false : console.log,
 });
+*/
+
+const db = new Sequelize(
+  configs.db.name,
+  configs.db.user,
+  configs.db.password,
+  {
+    host: configs.db.host,
+    port: configs.db.port,
+    dialect: 'mysql',
+    dialectOptions: {
+      ssl: {
+        ca: require('fs').readFileSync(process.env.DB_SSL_CA_PATH),
+      },
+    },
+  }
+);
+
+db.authenticate()
+  .then(() => console.log('Connected to TiDB with SSL ✅'))
+  .catch((err) => console.error('Connection failed:', err));
 
 //* JsDoc
 /**

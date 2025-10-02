@@ -12,9 +12,12 @@ const jwtAccessTokenStrategy = require('./strategies/jwtAccessTokenStrategy');
 const jwtRefreshTokenStrategy = require('./strategies/jwtRefreshTokenStrategy');
 const googleStrategy = require('./strategies/googleStrategy');
 
+const pageController = require('./controllers/pageController');
+
 const app = express();
 
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 app.use(cors());
 app.use(express.json());
@@ -30,11 +33,18 @@ passport.use(googleStrategy);
 app.get('/captcha', captchaController.getCaptcha);
 app.use('/auth', authRoutes);
 app.use('/articles', articleRoutes);
+
+// Page Routes (EJS)
+
 app.use('/hi', (req, res) => {
   res.render('home');
 });
-app.use('/auth/login', (req, res) => {
-  res.render('login');
-});
+
+app.get('/login', pageController.loginPage);
+app.get('/register', pageController.registerPage);
+
+app.get('/create', pageController.createArticlePage);
+app.get('/article/:slug', pageController.articleDetailPage);
+app.get('/', pageController.homePage);
 
 module.exports = app;

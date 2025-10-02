@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - My Blog</title>
+    <title>Register - My Blog</title>
     <style>
       * {
         margin: 0;
@@ -74,40 +74,6 @@
         border-color: #667eea;
       }
 
-      .captcha-group {
-        display: flex;
-        gap: 15px;
-        align-items: flex-end;
-      }
-
-      .captcha-group .form-group {
-        flex: 1;
-        margin-bottom: 0;
-      }
-
-      .captcha-display {
-        min-width: 150px;
-        height: 60px;
-        border-radius: 5px;
-        border: 2px solid #e0e0e0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f9f9f9;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .captcha-display:hover {
-        border-color: #667eea;
-        transform: scale(1.02);
-      }
-
-      .captcha-display svg {
-        max-width: 100%;
-        height: auto;
-      }
-
       .btn {
         width: 100%;
         padding: 14px;
@@ -128,12 +94,6 @@
       .btn-primary:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-      }
-
-      .btn-primary:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-        transform: none;
       }
 
       .btn-google {
@@ -197,6 +157,7 @@
         padding: 12px;
         border-radius: 5px;
         margin-bottom: 20px;
+        display: none;
         font-size: 0.9em;
       }
 
@@ -206,6 +167,7 @@
         padding: 12px;
         border-radius: 5px;
         margin-bottom: 20px;
+        display: none;
         font-size: 0.9em;
       }
 
@@ -224,9 +186,10 @@
         text-decoration: underline;
       }
 
-      .captcha-loading {
+      .helper-text {
+        font-size: 0.8em;
         color: #999;
-        font-size: 0.9em;
+        margin-top: 5px;
       }
     </style>
   </head>
@@ -234,17 +197,24 @@
     <div class="auth-container">
       <div class="logo">
         <h1>My Blog</h1>
-        <p>Welcome back!</p>
+        <p>Create your account</p>
       </div>
 
-      <div id="errorMessage" class="error-message" style="display: none"></div>
-      <div
-        id="successMessage"
-        class="success-message"
-        style="display: none"
-      ></div>
+      <div id="errorMessage" class="error-message"></div>
+      <div id="successMessage" class="success-message"></div>
 
-      <form id="loginForm">
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            required
+            placeholder="Enter your full name"
+          />
+        </div>
+
         <div class="form-group">
           <label for="username">Username</label>
           <input
@@ -252,7 +222,19 @@
             id="username"
             name="username"
             required
-            placeholder="Enter your username"
+            placeholder="Choose a username"
+          />
+          <div class="helper-text">Only letters, numbers, and underscores</div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            placeholder="Enter your email"
           />
         </div>
 
@@ -263,41 +245,30 @@
             id="password"
             name="password"
             required
-            placeholder="Enter your password"
+            placeholder="Create a password"
+          />
+          <div class="helper-text">At least 8 characters</div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            required
+            placeholder="Re-enter your password"
           />
         </div>
 
-        <div class="captcha-group">
-          <div class="form-group">
-            <label for="captcha">Captcha</label>
-            <input
-              type="text"
-              id="captcha"
-              name="captcha"
-              required
-              placeholder="Enter captcha"
-            />
-          </div>
-          <div
-            id="captchaDisplay"
-            class="captcha-display"
-            title="Click to refresh"
-          >
-            <span class="captcha-loading">Loading...</span>
-          </div>
-        </div>
-
-        <!-- Hidden field for captcha UUID -->
-        <input type="hidden" id="captchaUuid" name="captchaUuid" />
-
-        <button type="submit" class="btn btn-primary">Login</button>
+        <button type="submit" class="btn btn-primary">Create Account</button>
       </form>
 
       <div class="divider">
         <span>OR</span>
       </div>
 
-      <button class="btn btn-google" onclick="loginWithGoogle()">
+      <button class="btn btn-google" onclick="registerWithGoogle()">
         <svg width="20" height="20" viewBox="0 0 20 20">
           <path
             fill="#4285F4"
@@ -316,11 +287,11 @@
             d="M10 3.88c1.88 0 3.13.81 3.85 1.48l2.84-2.76C14.96.99 12.7 0 10 0 6.09 0 2.72 2.25 1.07 5.51l3.24 2.52C5.12 5.62 7.36 3.88 10 3.88z"
           />
         </svg>
-        Continue with Google
+        Sign up with Google
       </button>
 
       <div class="switch-auth">
-        Don't have an account? <a href="/register">Sign up</a>
+        Already have an account? <a href="/login">Login</a>
       </div>
 
       <div class="home-link">
@@ -329,65 +300,32 @@
     </div>
 
     <script>
-      // Load captcha
-      function loadCaptcha() {
-        fetch('/captcha')
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error('Failed to load captcha');
-            }
-            return response.json();
-          })
-          .then((data) => {
-            const captchaDisplay = document.getElementById('captchaDisplay');
-            const captchaUuidInput = document.getElementById('captchaUuid');
-
-            // نمایش SVG
-            captchaDisplay.innerHTML = data.captcha;
-
-            // ذخیره UUID
-            captchaUuidInput.value = data.uuid;
-          })
-          .catch((error) => {
-            console.error('Error loading captcha:', error);
-            const captchaDisplay = document.getElementById('captchaDisplay');
-            captchaDisplay.innerHTML =
-              '<span class="captcha-loading">Failed to load</span>';
-            showError('Failed to load captcha. Please refresh the page.');
-          });
-      }
-
-      // Refresh captcha on click
-      document
-        .getElementById('captchaDisplay')
-        .addEventListener('click', loadCaptcha);
-
-      // Load captcha on page load
-      loadCaptcha();
-
-      // Form submission
-      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
       const errorMessage = document.getElementById('errorMessage');
       const successMessage = document.getElementById('successMessage');
 
-      loginForm.addEventListener('submit', async function (e) {
+      registerForm.addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        const formData = {
-          username: document.getElementById('username').value,
-          password: document.getElementById('password').value,
-          captcha: document.getElementById('captcha').value,
-          captchaUuid: document.getElementById('captchaUuid').value,
-        };
+        const password = document.getElementById('password').value;
+        const confirmPassword =
+          document.getElementById('confirmPassword').value;
 
-        // چک کردن UUID
-        if (!formData.captchaUuid) {
-          showError('Please wait for captcha to load');
+        // Check if passwords match
+        if (password !== confirmPassword) {
+          showError('Passwords do not match!');
           return;
         }
 
+        const formData = {
+          name: document.getElementById('name').value,
+          username: document.getElementById('username').value,
+          email: document.getElementById('email').value,
+          password: password,
+        };
+
         try {
-          const response = await fetch('/auth/login', {
+          const response = await fetch('/auth/register', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -398,32 +336,25 @@
           const data = await response.json();
 
           if (response.ok) {
-            // ذخیره token ها
-            if (data.accessToken) {
-              localStorage.setItem('accessToken', data.accessToken);
-            }
-            if (data.refreshToken) {
-              localStorage.setItem('refreshToken', data.refreshToken);
-            }
+            // Save tokens
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
 
-            showSuccess('Login successful! Redirecting...');
+            showSuccess('Registration successful! Redirecting...');
 
             setTimeout(() => {
               window.location.href = '/';
             }, 1000);
           } else {
-            showError(data.message || 'Login failed. Please try again.');
-            loadCaptcha(); // Refresh captcha
-            document.getElementById('captcha').value = '';
+            showError(data.message || 'Registration failed. Please try again.');
           }
         } catch (error) {
           console.error('Error:', error);
           showError('An error occurred. Please try again.');
-          loadCaptcha();
         }
       });
 
-      function loginWithGoogle() {
+      function registerWithGoogle() {
         window.location.href = '/auth/google';
       }
 
@@ -431,12 +362,14 @@
         errorMessage.textContent = message;
         errorMessage.style.display = 'block';
         successMessage.style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
       function showSuccess(message) {
         successMessage.textContent = message;
         successMessage.style.display = 'block';
         errorMessage.style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     </script>
   </body>
