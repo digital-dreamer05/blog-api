@@ -23,7 +23,7 @@ module.exports = {
     },
   },
 
-  redis: { uri: process.env.REDIS_URI },
+  redis: { uri: process.env.REDIS_URL },
 
   damin: process.env.DOMIN,
 
