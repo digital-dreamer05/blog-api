@@ -1,6 +1,7 @@
 const { Article, Tag, User } = require('./../db');
 const catchAsync = require('../utils/catchAsync');
 const { marked } = require('marked');
+const { calculateRelativeTimeDifference } = require('../utils/differenceTime');
 
 exports.homePage = catchAsync(async (req, res, next) => {
   const articles = await Article.findAll({
@@ -8,9 +9,7 @@ exports.homePage = catchAsync(async (req, res, next) => {
       {
         model: Tag,
         attributes: ['title'],
-        through: {
-          attributes: [],
-        },
+        through: { attributes: [] },
       },
       {
         model: User,
@@ -21,28 +20,30 @@ exports.homePage = catchAsync(async (req, res, next) => {
     order: [['createdAt', 'DESC']],
   });
 
-  const formattedArticles = articles.map((article) => ({
-    id: article.id,
-    title: article.title,
-    content: article.content,
-    slug: article.slug,
-    cover: article.cover ? `/${article.cover}` : '/images/default-cover.jpg',
-    published_date: article.createdAt,
-    author: article.author.name || article.author.username,
-    tags: article.tags.map((tag) => tag.title),
-  }));
+  const formattedArticles = articles.map((article) => {
+    const timeInfo = calculateRelativeTimeDifference(article.createdAt);
+
+    return {
+      id: article.id,
+      title: article.title,
+      content: article.content,
+      slug: article.slug,
+      cover: article.cover ? `/${article.cover}` : '/images/default-cover.jpg',
+      relative_time: timeInfo.relative,
+      full_date: timeInfo.fullDate,
+      days_since: timeInfo.days,
+      author: article.author.name || article.author.username,
+      tags: article.tags.map((tag) => tag.title),
+    };
+  });
 
   res.render('index', { articles: formattedArticles });
 });
 
 exports.articleDetailPage = catchAsync(async (req, res, next) => {
   const article = await Article.findOne({
-    where: {
-      slug: req.params.slug,
-    },
-    attributes: {
-      exclude: ['author_id'],
-    },
+    where: { slug: req.params.slug },
+    attributes: { exclude: ['author_id'] },
     include: [
       {
         model: User,
@@ -52,24 +53,24 @@ exports.articleDetailPage = catchAsync(async (req, res, next) => {
       {
         model: Tag,
         attributes: ['title'],
-        through: {
-          attributes: [],
-        },
+        through: { attributes: [] },
       },
     ],
   });
 
-  if (!article) {
-    return res.status(404).send('Article not found');
-  }
+  if (!article) return res.status(404).send('Article not found');
+
+  const timeInfo = calculateRelativeTimeDifference(article.createdAt);
 
   const formattedArticle = {
     id: article.id,
     title: article.title,
-    content: article.content, // اگر Markdown هست، از marked(article.content) استفاده کن
+    content: marked(article.content),
     slug: article.slug,
     cover: article.cover ? `/${article.cover}` : '/images/default-cover.jpg',
-    published_date: article.createdAt,
+    relative_time: timeInfo.relative,
+    full_date: timeInfo.fullDate,
+    days_since: timeInfo.days,
     author: article.author.name || article.author.username,
     tags: article.tags.map((tag) => tag.title),
   };
