@@ -76,6 +76,14 @@ exports.login = catchAsync(async (req, res, next) => {
     config.auth.refreshTokenExpiresInSeconds
   );
 
+  /////////EJS
+
+  if (req.query.redirect === 'web' || req.path.includes('google/callback')) {
+    return res.redirect(
+      `/auth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`
+    );
+  }
+
   return res.status(200).json({
     accessToken,
     refreshToken,

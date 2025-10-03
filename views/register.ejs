@@ -157,7 +157,6 @@
         padding: 12px;
         border-radius: 5px;
         margin-bottom: 20px;
-        display: none;
         font-size: 0.9em;
       }
 
@@ -167,7 +166,6 @@
         padding: 12px;
         border-radius: 5px;
         margin-bottom: 20px;
-        display: none;
         font-size: 0.9em;
       }
 
@@ -200,8 +198,12 @@
         <p>Create your account</p>
       </div>
 
-      <div id="errorMessage" class="error-message"></div>
-      <div id="successMessage" class="success-message"></div>
+      <div id="errorMessage" class="error-message" style="display: none"></div>
+      <div
+        id="successMessage"
+        class="success-message"
+        style="display: none"
+      ></div>
 
       <form id="registerForm">
         <div class="form-group">
@@ -311,7 +313,6 @@
         const confirmPassword =
           document.getElementById('confirmPassword').value;
 
-        // Check if passwords match
         if (password !== confirmPassword) {
           showError('Passwords do not match!');
           return;
@@ -322,6 +323,7 @@
           username: document.getElementById('username').value,
           email: document.getElementById('email').value,
           password: password,
+          passwordConfirm: confirmPassword,
         };
 
         try {
@@ -336,7 +338,6 @@
           const data = await response.json();
 
           if (response.ok) {
-            // Save tokens
             localStorage.setItem('accessToken', data.accessToken);
             localStorage.setItem('refreshToken', data.refreshToken);
 

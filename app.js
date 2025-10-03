@@ -42,6 +42,9 @@ app.use('/hi', (req, res) => {
 
 app.get('/login', pageController.loginPage);
 app.get('/register', pageController.registerPage);
+app.get('/auth-success', (req, res) => {
+  res.render('auth-success');
+});
 
 app.get('/create', pageController.createArticlePage);
 app.get('/article/:slug', pageController.articleDetailPage);
