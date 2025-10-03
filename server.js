@@ -10,7 +10,7 @@ async function startServer() {
     await db.authenticate();
     await redis.ping();
 
-    app.listen(config.port, () => {
+    app.listen(config.port, '0.0.0.0', () => {
       console.log(`Server is running on port ${config.port}...`);
     });
   } catch (err) {
