@@ -2,7 +2,6 @@ const { Article, Tag, User } = require('./../db');
 const catchAsync = require('../utils/catchAsync');
 const { marked } = require('marked');
 
-// صفحه اصلی - لیست مقالات
 exports.homePage = catchAsync(async (req, res, next) => {
   const articles = await Article.findAll({
     include: [
@@ -36,7 +35,6 @@ exports.homePage = catchAsync(async (req, res, next) => {
   res.render('index', { articles: formattedArticles });
 });
 
-// صفحه جزئیات مقاله
 exports.articleDetailPage = catchAsync(async (req, res, next) => {
   const article = await Article.findOne({
     where: {
@@ -79,7 +77,6 @@ exports.articleDetailPage = catchAsync(async (req, res, next) => {
   res.render('article', { article: formattedArticle });
 });
 
-// صفحه ساخت مقاله
 exports.createArticlePage = (req, res) => {
   res.render('create-article');
 };
@@ -90,4 +87,14 @@ exports.loginPage = (req, res) => {
 
 exports.registerPage = (req, res) => {
   res.render('register');
+};
+
+exports.authFailedPage = (req, res) => {
+  const message = req.query.message || 'Authentication failed';
+  res.render('auth-failed', { message });
+};
+
+exports.authSuccessPage = (req, res) => {
+  const { accessToken, refreshToken } = req.query;
+  res.render('auth-success', { accessToken, refreshToken });
 };

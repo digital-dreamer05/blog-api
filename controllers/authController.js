@@ -4,9 +4,30 @@ const jwt = require('jsonwebtoken');
 const config = require('../configs');
 const { User } = require('../db');
 const redis = require('../redis');
+const { Op } = require('sequelize');
 
 exports.register = catchAsync(async (req, res, next) => {
   const { name, username, email, password } = req.body;
+
+  // Check if user already exists
+  const existingUser = await User.findOne({
+    where: {
+      [Op.or]: [{ email }, { username }],
+    },
+  });
+
+  if (existingUser) {
+    ///////// EJS
+    if (req.query.redirect === 'web' || req.path.includes('google/callback')) {
+      return res.redirect(
+        `/auth-failed?message=User already registered. Please login`
+      );
+    }
+
+    return res.status(409).json({
+      message: 'User already registered. Please login',
+    });
+  }
 
   const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -41,6 +62,13 @@ exports.register = catchAsync(async (req, res, next) => {
     'EX',
     config.auth.refreshTokenExpiresInSeconds
   );
+
+  ///////// EJS
+  if (req.query.redirect === 'web' || req.path.includes('google/callback')) {
+    return res.redirect(
+      `/auth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`
+    );
+  }
 
   return res.status(201).json({
     accessToken,
