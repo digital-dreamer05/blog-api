@@ -49,4 +49,7 @@ app.get('/create', pageController.createArticlePage);
 app.get('/article/:slug', pageController.articleDetailPage);
 app.get('/', pageController.homePage);
 
+app.get('/dashboard', pageController.dashboardPage);
+app.get('/edit/:id', pageController.editArticlePage);
+
 module.exports = app;
