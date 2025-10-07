@@ -5,6 +5,7 @@ const config = require('../configs');
 const { User } = require('../db');
 const redis = require('../redis');
 const { Op } = require('sequelize');
+const crypto = require('crypto');
 
 exports.register = catchAsync(async (req, res, next) => {
   const { name, username, email, password } = req.body;
@@ -77,45 +78,43 @@ exports.register = catchAsync(async (req, res, next) => {
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  const newUser = req.user;
+  const user = req.user;
 
   const accessToken = jwt.sign(
-    { id: newUser.id, role: newUser.role },
+    { id: user.id, role: user.role },
     config.auth.accessTokenSecretKey,
-    {
-      expiresIn: config.auth.accessTokenExpiresInSeconds + 's',
-    }
+    { expiresIn: `${config.auth.accessTokenExpiresInSeconds}s` }
   );
 
   const refreshToken = jwt.sign(
-    { id: newUser.id },
+    { id: user.id, tokenVersion: user.tokenVersion },
     config.auth.refreshTokenSecretKey,
-    {
-      expiresIn: config.auth.refreshTokenExpiresInSeconds + 's',
-    }
+    { expiresIn: `${config.auth.refreshTokenExpiresInSeconds}s` }
   );
 
-  const hashedRefreshToken = await bcrypt.hash(refreshToken, 12);
+  const hashedRefreshToken = crypto
+    .createHash('sha256')
+    .update(refreshToken)
+    .digest('hex');
 
   await redis.set(
-    `refreshToken:${newUser.id}`,
+    `refreshToken:${user.id}`,
     hashedRefreshToken,
     'EX',
     config.auth.refreshTokenExpiresInSeconds
   );
 
-  /////////EJS
-
   if (req.query.redirect === 'web' || req.path.includes('google/callback')) {
-    return res.redirect(
-      `/auth-success?accessToken=${accessToken}&refreshToken=${refreshToken}`
-    );
+    return res.redirect(`/auth-success?accessToken=${accessToken}`);
   }
 
-  return res.status(200).json({
-    accessToken,
-    refreshToken,
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: config.auth.refreshTokenExpiresInSeconds * 1000,
   });
+
+  return res.status(200).json({ accessToken });
 });
 
 exports.getMe = catchAsync(async (req, res, next) => {
@@ -139,6 +138,23 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
   );
 
   return res.json({ accessToken });
+});
+
+exports.logout = catchAsync(async (req, res, next) => {
+  const redisKey = `refreshToken:${req.user.id}`;
+
+  await redis.del(redisKey);
+
+  return res.status(200).json({ message: 'User logout successfully' });
+});
+
+exports.getAllUsers = catchAsync(async (req, res, next) => {
+  const users = await User.findAll({
+    attributes: { exclude: ['password'] },
+    order: [['createdAt', 'DESC']],
+  });
+
+  return res.status(200).json(users);
 });
 
 exports.logout = catchAsync(async (req, res, next) => {

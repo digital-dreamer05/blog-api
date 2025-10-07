@@ -1,10 +1,11 @@
 const express = require('express');
+const passport = require('passport');
 const authController = require('../controllers/authController');
 const validate = require('../middlewares/validate');
 const signupSchema = require('../validators/signupValidato');
 const loginSchema = require('../validators/loginValidator');
-const passport = require('passport');
 const captcha = require('../middlewares/captcha');
+const authorize = require('../middlewares/authorize');
 
 const router = express.Router();
 
@@ -50,5 +51,12 @@ router
     passport.authenticate('google', { session: false }),
     authController.login
   );
+
+router.get(
+  '/users',
+  passport.authenticate('accessToken', { session: false }),
+  authorize(['admin']),
+  authController.getAllUsers
+);
 
 module.exports = router;

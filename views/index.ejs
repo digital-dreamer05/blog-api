@@ -100,6 +100,12 @@
         border-radius: 50px;
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+      }
+      .user-profile:hover {
+        background: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transform: translateY(-2px);
       }
       .user-avatar {
         width: 45px;
@@ -365,13 +371,13 @@
             const displayName = user.name || user.username;
             const roleBadge = getRoleBadge(user.role);
             navButtons.innerHTML = `
-              <div class="user-profile">
+              <a href="/dashboard" class="user-profile" style="text-decoration: none; color: inherit;">
                 <div class="user-avatar">${initials}</div>
                 <div class="user-details">
                   <div class="user-name">${displayName}</div>
                   <div class="user-role">${roleBadge}</div>
                 </div>
-              </div>
+              </a>
               <div class="logged-in-actions">
                 <a href="/create" class="nav-btn btn-create">+ Create Article</a>
                 <button onclick="logout()" class="nav-btn btn-logout">Logout</button>

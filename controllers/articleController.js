@@ -104,6 +104,32 @@ exports.findBySlug = catchAsync(async (req, res, next) => {
   return res.json({ ...article.dataValues, tags });
 });
 
+exports.findById = catchAsync(async (req, res, next) => {
+  const article = await Article.findByPk(req.params.id, {
+    attributes: {
+      exclude: ['author_id'],
+    },
+    include: [
+      { model: User, attributes: { exclude: ['password'] }, as: 'author' },
+      {
+        model: Tag,
+        attributes: ['title'],
+        through: {
+          attributes: [],
+        },
+      },
+    ],
+  });
+
+  if (!article) {
+    return res.status(404).json({ message: 'Article not found !!!' });
+  }
+
+  const tags = article.dataValues.tags.map((tag) => tag.title);
+
+  return res.json({ ...article.dataValues, tags });
+});
+
 exports.deleteArticle = catchAsync(async (req, res, next) => {
   const { id } = req.params;
 
@@ -113,7 +139,7 @@ exports.deleteArticle = catchAsync(async (req, res, next) => {
     return res.status(404).json({ message: 'Article is not found!!!' });
   }
 
-  if (article.author_id !== req.user.id) {
+  if (article.author_id !== req.user.id && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Forbidden !!!' });
   }
 
@@ -137,7 +163,7 @@ exports.updateArticle = catchAsync(async (req, res, next) => {
     return res.status(404).json({ message: 'Article is not found !!!' });
   }
 
-  if (article.author_id !== req.user.id) {
+  if (article.author_id !== req.user.id && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Forbidden !!!' });
   }
 
@@ -153,7 +179,9 @@ exports.updateArticle = catchAsync(async (req, res, next) => {
 
   let updatedArticle;
   let i = 2;
-  const coverPath = `images/covers/${req.file?.filename}`;
+  const coverPath = req.file
+    ? `images/covers/${req.file.filename}`
+    : article.cover;
 
   while (!updatedArticle) {
     try {

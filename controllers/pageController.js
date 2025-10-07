@@ -82,6 +82,14 @@ exports.createArticlePage = (req, res) => {
   res.render('create-article');
 };
 
+exports.dashboardPage = catchAsync(async (req, res, next) => {
+  res.render('dashboard');
+});
+
+exports.editArticlePage = catchAsync(async (req, res, next) => {
+  res.render('edit-article');
+});
+
 exports.loginPage = (req, res) => {
   res.render('login');
 };
