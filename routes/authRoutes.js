@@ -11,6 +11,8 @@ const router = express.Router();
 
 router.route('/register').post(validate(signupSchema), authController.register);
 
+router.route('/verify-otp').post(authController.verifyOtp);
+
 router
   .route('/login')
   .post(

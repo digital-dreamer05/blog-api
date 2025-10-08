@@ -338,14 +338,13 @@
           const data = await response.json();
 
           if (response.ok) {
-            localStorage.setItem('accessToken', data.accessToken);
-            localStorage.setItem('refreshToken', data.refreshToken);
-
-            showSuccess('Registration successful! Redirecting...');
+            showSuccess('Registration successful! Please check your email.');
 
             setTimeout(() => {
-              window.location.href = '/';
-            }, 1000);
+              window.location.href = `/verify-otp?email=${encodeURIComponent(
+                formData.email
+              )}`;
+            }, 1500);
           } else {
             showError(data.message || 'Registration failed. Please try again.');
           }

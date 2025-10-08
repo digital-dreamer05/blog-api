@@ -42,6 +42,8 @@ app.use('/hi', (req, res) => {
 
 app.get('/login', pageController.loginPage);
 app.get('/register', pageController.registerPage);
+app.get('/verify-otp', pageController.verifyPage);
+
 app.get('/auth-success', pageController.authSuccessPage);
 app.get('/auth-failed', pageController.authFailedPage);
 

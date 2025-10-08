@@ -43,6 +43,11 @@ const User = (sequelize) => {
         allowNull: true,
         defaultValue: 'local',
       },
+      isVerified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
     },
     {
       tableName: 'users',

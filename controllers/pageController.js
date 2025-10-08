@@ -98,6 +98,11 @@ exports.registerPage = (req, res) => {
   res.render('register');
 };
 
+exports.verifyPage = (req, res) => {
+  const email = req.query.email || '';
+  res.render('verify', { email });
+};
+
 exports.authFailedPage = (req, res) => {
   const message = req.query.message || 'Authentication failed';
   res.render('auth-failed', { message });
