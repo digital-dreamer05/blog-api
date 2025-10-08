@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Verification - My Blog</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .auth-container {
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+      }
+      h2 {
+        margin-bottom: 20px;
+        color: #667eea;
+      }
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #333;
+      }
+      input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 5px;
+        font-size: 1em;
+      }
+      .btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+      }
+      .error-message,
+      .success-message {
+        padding: 12px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        font-size: 0.9em;
+        display: none;
+      }
+      .error-message {
+        background-color: #fee;
+        color: #c00;
+      }
+      .success-message {
+        background-color: #efe;
+        color: #060;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="auth-container">
+      <h2>Verify Your Email</h2>
+      <p>Please enter the 6-digit code we sent to your email.</p>
+
+      <div id="errorMessage" class="error-message"></div>
+      <div id="successMessage" class="success-message"></div>
+
+      <form id="verifyForm">
+        <div class="form-group">
+          <label for="otp">OTP Code</label>
+          <input
+            type="text"
+            id="otp"
+            name="otp"
+            placeholder="Enter code"
+            required
+          />
+        </div>
+        <!-- ایمیل از سرور میاد -->
+        <input type="hidden" id="email" value="<%= email %>" />
+        <button type="submit" class="btn">Verify</button>
+      </form>
+    </div>
+
+    <script>
+      const email = document.getElementById('email').value;
+      const form = document.getElementById('verifyForm');
+      const errorMessage = document.getElementById('errorMessage');
+      const successMessage = document.getElementById('successMessage');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const otp = document.getElementById('otp').value;
+
+        try {
+          const response = await fetch('/auth/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, otp }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            successMessage.textContent = data.message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
+
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 1500);
+          } else {
+            errorMessage.textContent = data.message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+          }
+        } catch (err) {
+          errorMessage.textContent = 'An error occurred. Please try again.';
+          errorMessage.style.display = 'block';
+        }
+      });
+    </script>
+  </body>
+</html>
