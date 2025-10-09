@@ -7,33 +7,36 @@ module.exports = new GoogleStrategy(
   {
     clientID: configs.auth.google.clientId,
     clientSecret: configs.auth.google.clientSecret,
-    callbackURL: `${configs.damin}/auth/google/callback`,
+    callbackURL: `${configs.domain}/auth/google/callback`,
   },
   async (accessToken, refreshToken, profile, done) => {
-    const email = profile.emails[0].value;
+    try {
+      const email = profile.emails[0].value;
 
-    let user = await User.findOne({
-      where: {
+      let user = await User.findOne({ where: { email } });
+      if (user) {
+        if (user.provider !== 'google') {
+          await user.update({ provider: 'google', isVerified: true });
+        }
+        return done(null, user);
+      }
+
+      const name = profile.name?.givenName || profile.displayName || 'User';
+      const username =
+        slugify(name, { lower: true }).replace(/[\.-]/g, '') +
+        Math.floor(1000 + Math.random() * 9000);
+
+      const newUser = await User.create({
+        name,
+        username,
         email,
-      },
-    });
+        provider: 'google',
+        isVerified: true,
+      });
 
-    if (user) {
-      return done(null, user);
+      return done(null, newUser);
+    } catch (error) {
+      return done(error);
     }
-
-    const name = profile.name.givenName;
-    const username =
-      slugify(name, { lower: true }).replace(/[\.-]/g, '') +
-      Math.floor(100 + Math.random() * 9000);
-
-    const newUser = await User.create({
-      name,
-      username,
-      email,
-      provider: 'google',
-    });
-
-    done(null, newUser);
   }
 );

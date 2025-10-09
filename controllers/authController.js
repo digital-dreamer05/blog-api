@@ -172,6 +172,7 @@ exports.logout = catchAsync(async (req, res, next) => {
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.findAll({
+    where: { isVerified: true },
     attributes: { exclude: ['password'] },
     order: [['createdAt', 'DESC']],
   });

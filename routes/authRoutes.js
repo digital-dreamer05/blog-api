@@ -13,14 +13,27 @@ router.route('/register').post(validate(signupSchema), authController.register);
 
 router.route('/verify-otp').post(authController.verifyOtp);
 
-router
-  .route('/login')
-  .post(
-    validate(loginSchema),
-    captcha,
-    passport.authenticate('local', { session: false }),
-    authController.login
-  );
+router.post(
+  '/login',
+  validate(loginSchema),
+  captcha,
+  (req, res, next) => {
+    passport.authenticate('local', { session: false }, (err, user, info) => {
+      if (err) return next(err);
+
+      if (!user) {
+        return res.status(401).json({
+          status: 'error',
+          message: info?.message || 'Login failed.',
+        });
+      }
+
+      req.user = user;
+      next();
+    })(req, res, next);
+  },
+  authController.login
+);
 
 router
   .route('/me')
