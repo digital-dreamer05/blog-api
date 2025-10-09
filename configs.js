@@ -25,7 +25,10 @@ module.exports = {
 
   redis: { uri: process.env.REDIS_URL },
 
-  damin: process.env.DOMIN,
-
   isProduction: process.env.NODE_ENV === 'production',
+
+  damin:
+    process.env.NODE_ENV === 'production'
+      ? process.env.PRODUCTION_DOMAIN
+      : process.env.LOCAL_DOMAIN,
 };
