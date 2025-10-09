@@ -22,11 +22,9 @@ exports.register = catchAsync(async (req, res, next) => {
   }
 
   if (existingUserByUsername) {
-    return res
-      .status(409)
-      .json({
-        message: 'This username is already taken. Please choose another one.',
-      });
+    return res.status(409).json({
+      message: 'This username is already taken. Please choose another one.',
+    });
   }
 
   // 2. create user (isVerified = false)
