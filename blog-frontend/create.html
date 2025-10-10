@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Create Article</title>
+    <link rel="stylesheet" href="/blog-frontend/assets/css/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="nav">
+        <div class="brand">Blog</div>
+        <a data-href="index.html">Home</a>
+        <div class="actions">
+          <a class="btn primary" data-href="dashboard.html">Dashboard</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <form id="createForm" class="form">
+        <div class="error" id="err"></div>
+        <label>Title</label>
+        <input class="input" name="title" required />
+        <label>Content (Markdown or text)</label>
+        <textarea class="input" name="content" rows="10" required></textarea>
+        <label>Tags (comma separated)</label>
+        <input class="input" name="tags" placeholder="tag1,tag2" required />
+        <label>Cover (optional)</label>
+        <input class="input" type="file" name="cover" accept="image/*" />
+        <div class="actions-row">
+          <button class="btn primary" type="submit">Publish</button>
+          <button class="btn" type="button" id="resetBtn">Reset</button>
+        </div>
+      </form>
+    </main>
+
+    <script src="/blog-frontend/assets/js/config.js"></script>
+    <script src="/blog-frontend/assets/js/api.js"></script>
+    <script src="/blog-frontend/assets/js/ui.js"></script>
+    <script>
+      document.addEventListener('click', (e)=>{
+        const a = e.target.closest('[data-href]');
+        if (!a) return;
+        e.preventDefault();
+        const to = a.getAttribute('data-href');
+        location.href = ui.appUrl(to);
+      });
+      document
+        .getElementById('resetBtn')
+        .addEventListener('click', () =>
+          document.getElementById('createForm').reset()
+        );
+      document
+        .getElementById('createForm')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const fd = new FormData(e.target);
+          const tagsRaw = fd.get('tags') || '';
+          const tagsArr = String(tagsRaw)
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean);
+          fd.set('tags', JSON.stringify(tagsArr));
+          const res = await api.form('/articles', fd, 'POST');
+          if (res && res.status === 'success') {
+            ui.toast('Article published', 'success');
+            location.href = `/blog-frontend/article.html?slug=${encodeURIComponent(
+              res.data.slug
+            )}`;
+          } else {
+            document.getElementById('err').textContent =
+              res?.message || 'Create failed';
+          }
+        });
+    </script>
+  </body>
+</html>

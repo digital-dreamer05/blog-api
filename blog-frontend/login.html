@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login</title>
+    <link rel="stylesheet" href="/blog-frontend/assets/css/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="nav">
+        <div class="brand">Blog</div>
+        <a data-href="index.html">Home</a>
+      </div>
+    </header>
+
+    <main class="container">
+      <form id="loginForm" class="form" autocomplete="off">
+        <div class="error" id="err"></div>
+        <label>Username</label>
+        <input class="input" name="username" required />
+        <label>Password</label>
+        <input class="input" type="password" name="password" required />
+        <div class="actions-row" style="align-items: flex-start">
+          <div id="captchaBox"></div>
+          <button class="btn" type="button" id="reload">Reload</button>
+        </div>
+        <input type="hidden" name="captchaUuid" id="captchaUuid" />
+        <label>Captcha</label>
+        <input class="input" name="captcha" maxlength="4" required />
+        <div class="actions-row">
+          <button class="btn primary" type="submit">Login</button>
+          <a class="btn" href="/blog-frontend/register.html">Register</a>
+        </div>
+      </form>
+    </main>
+
+    <script src="/blog-frontend/assets/js/config.js"></script>
+    <script src="/blog-frontend/assets/js/api.js"></script>
+    <script>
+      document.addEventListener('click', (e)=>{
+        const a = e.target.closest('[data-href]');
+        if (!a) return;
+        e.preventDefault();
+        const to = a.getAttribute('data-href');
+        location.href = ui.appUrl(to);
+      });
+      async function loadCaptcha() {
+        const res = await api.get('/captcha');
+        if (res && res.uuid && res.captcha) {
+          document.getElementById('captchaUuid').value = res.uuid;
+          document.getElementById('captchaBox').innerHTML = res.captcha;
+        }
+      }
+      document.getElementById('reload').addEventListener('click', loadCaptcha);
+      loadCaptcha();
+
+      document
+        .getElementById('loginForm')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const body = Object.fromEntries(new FormData(e.target).entries());
+          const res = await api.post('/auth/login', body);
+          if (res && res.accessToken && res.refreshToken) {
+          localStorage.setItem('accessToken', res.accessToken);
+          localStorage.setItem('refreshToken', res.refreshToken);
+          location.href = ui.appUrl('index.html');
+          } else {
+            document.getElementById('err').textContent =
+              res?.message || 'Login failed';
+            loadCaptcha();
+          }
+        });
+    </script>
+  </body>
+</html>
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Login</h1>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/register.html">Register</a>
+      </nav>
+    </header>
+    <main>
+      <form id="loginForm">
+        <div class="error" id="err"></div>
+        <label>Username</label>
+        <input name="username" required />
+        <label>Password</label>
+        <input type="password" name="password" required />
+        <div
+          style="display: flex; align-items: center; gap: 12px; margin: 8px 0"
+        >
+          <div id="captchaBox"></div>
+          <button type="button" id="reload">↻</button>
+        </div>
+        <input type="hidden" name="captchaUuid" id="captchaUuid" />
+        <label>Captcha</label>
+        <input name="captcha" maxlength="4" required />
+        <button type="submit">Login</button>
+      </form>
+    </main>
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script>
+      async function loadCaptcha() {
+        const res = await api.get('/captcha');
+        if (res && res.uuid && res.captcha) {
+          document.getElementById('captchaUuid').value = res.uuid;
+          document.getElementById('captchaBox').innerHTML = res.captcha;
+        }
+      }
+      document.getElementById('reload').addEventListener('click', loadCaptcha);
+      loadCaptcha();
+
+      document
+        .getElementById('loginForm')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const f = new FormData(e.target);
+          const body = Object.fromEntries(f.entries());
+          const res = await api.post('/auth/login', body);
+          if (res && res.accessToken && res.refreshToken) {
+            localStorage.setItem('accessToken', res.accessToken);
+            localStorage.setItem('refreshToken', res.refreshToken);
+            location.href = '/';
+          } else {
+            document.getElementById('err').textContent =
+              res?.message || 'Login failed';
+            loadCaptcha();
+          }
+        });
+    </script>
+  </body>
+</html>

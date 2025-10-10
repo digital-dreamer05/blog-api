@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/blog-frontend/assets/css/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="nav">
+        <div class="brand">Blog</div>
+        <a data-href="index.html">Home</a>
+        <a data-href="create.html">Create</a>
+        <div class="actions">
+          <button class="btn" id="logoutBtn">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <h2 class="reveal-once">Dashboard</h2>
+      <div id="welcome" class="meta"></div>
+
+      <section style="margin-top: 16px">
+        <h3>Your Articles</h3>
+        <div id="myArticles" class="grid"></div>
+      </section>
+
+      <section id="adminPanel" style="margin-top: 24px; display: none">
+        <h3>Admin Panel</h3>
+        <div id="allUsers"></div>
+      </section>
+    </main>
+
+    <script src="/blog-frontend/assets/js/config.js"></script>
+    <script src="/blog-frontend/assets/js/api.js"></script>
+    <script>
+      document.addEventListener('click', (e)=>{
+        const a = e.target.closest('[data-href]');
+        if (!a) return;
+        e.preventDefault();
+        const to = a.getAttribute('data-href');
+        location.href = ui.appUrl(to);
+      });
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.clear();
+        location.href = ui.appUrl('login.html');
+      });
+
+      (async function init() {
+        const me = await api.get('/auth/me');
+        if (!me || me.status === 'error') {
+          location.href = '/blog-frontend/login.html';
+          return;
+        }
+        const user = me.data || me;
+        document.getElementById('welcome').textContent = `Welcome, ${
+          user.name || user.username
+        }`;
+
+        const articles = await api.get('/articles?mine=1');
+        const list = Array.isArray(articles?.data) ? articles.data : [];
+        const el = document.getElementById('myArticles');
+        el.innerHTML = list
+          .map((a) => {
+            return `<article class="card"><div class="p"><h4>${
+              a.title
+            }</h4><div class="meta">${(a.content || '').slice(0, 120)}...</div>
+             <div class="actions-row" style="margin-top:8px">
+               <a class="btn" href="${ui.appUrl('article.html')}?slug=${encodeURIComponent(
+                 a.slug
+               )}">View</a>
+               <a class="btn" href="${ui.appUrl('edit.html')}?id=${a.id}">Edit</a>
+               <button class="btn" data-del-id="${a.id}">Delete</button>
+             </div></div></article>`;
+          })
+          .join('');
+
+        document.querySelectorAll('[data-del-id]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            if (!confirm('Delete this article?')) return;
+            const id = btn.getAttribute('data-del-id');
+            const res = await api.del(`/articles/${encodeURIComponent(id)}`);
+            location.reload();
+          });
+        });
+
+        if (user.role === 'admin') {
+          document.getElementById('adminPanel').style.display = '';
+          const users = await api.get('/auth/users');
+          const ul = Array.isArray(users?.data) ? users.data : [];
+          document.getElementById('allUsers').innerHTML = `
+            <table class="table">
+              <thead><tr><th>ID</th><th>Name</th><th>Username</th><th>Email</th><th>Role</th></tr></thead>
+              <tbody>
+                ${ul
+                  .map(
+                    (u) =>
+                      `<tr><td>${u.id}</td><td>${u.name || ''}</td><td>${
+                        u.username
+                      }</td><td>${u.email}</td><td><span class="badge">${
+                        u.role
+                      }</span></td></tr>`
+                  )
+                  .join('')}
+              </tbody>
+            </table>`;
+        }
+      })();
+    </script>
+  </body>
+</html>
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Dashboard</h1>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/create.html">Create</a>
+      </nav>
+    </header>
+    <main>
+      <div id="list"></div>
+    </main>
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script>
+      (async function () {
+        const me = await api.get('/auth/me');
+        if (!me || me.status === 'error') {
+          document.getElementById('list').textContent = 'Please login first.';
+          return;
+        }
+        const res = await api.get('/articles?mine=1');
+        const items = res?.data || [];
+        const el = document.getElementById('list');
+        el.innerHTML = items
+          .map(
+            (a) => `<div class="card" style="grid-template-columns:1fr;">
+        <h3>${a.title}</h3>
+        <div>${(a.content || '').slice(0, 200)}...</div>
+      </div>`
+          )
+          .join('');
+      })();
+    </script>
+  </body>
+</html>

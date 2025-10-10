@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edit Article</title>
+    <link rel="stylesheet" href="/blog-frontend/assets/css/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="nav">
+        <div class="brand">Blog</div>
+        <a data-href="index.html">Home</a>
+        <a data-href="dashboard.html">Dashboard</a>
+      </div>
+    </header>
+    <main class="container">
+      <form id="editForm" class="form">
+        <div class="error" id="err"></div>
+        <label>Title</label>
+        <input class="input" name="title" required />
+        <label>Content</label>
+        <textarea class="input" name="content" rows="10" required></textarea>
+        <label>Tags (comma separated)</label>
+        <input class="input" name="tags" />
+        <label>Cover (optional)</label>
+        <input class="input" type="file" name="cover" accept="image/*" />
+        <div class="actions-row">
+          <button class="btn primary" type="submit">Save</button>
+        </div>
+      </form>
+    </main>
+    <script src="/blog-frontend/assets/js/config.js"></script>
+    <script src="/blog-frontend/assets/js/api.js"></script>
+    <script>
+      document.addEventListener('click', (e) => {
+        const a = e.target.closest('[data-href]');
+        if (!a) return;
+        e.preventDefault();
+        const to = a.getAttribute('data-href');
+        location.href = ui.appUrl(to);
+      });
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+      if (!id) {
+        document.getElementById('err').textContent = 'Missing id';
+      }
+      (async function preload() {
+        const res = await api.get('/articles?mine=1');
+        const list = res?.data || [];
+        const a = list.find((x) => String(x.id) === String(id));
+        if (!a) return;
+        document.querySelector('[name=title]').value = a.title;
+        document.querySelector('[name=content]').value = a.content || '';
+        document.querySelector('[name=tags]').value = (a.tags || []).join(',');
+      })();
+
+      document
+        .getElementById('editForm')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const fd = new FormData(e.target);
+          const tagsRaw = fd.get('tags') || '';
+          const tagsArr = String(tagsRaw)
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean);
+          fd.set('tags', JSON.stringify(tagsArr));
+          const res = await api.form(
+            `/articles/${encodeURIComponent(id)}`,
+            fd,
+            'PATCH'
+          );
+          if (res && res.status === 'success') {
+            location.href = '/blog-frontend/dashboard.html';
+          } else {
+            document.getElementById('err').textContent =
+              res?.message || 'Update failed';
+          }
+        });
+    </script>
+  </body>
+</html>
