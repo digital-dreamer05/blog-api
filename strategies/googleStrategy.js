@@ -7,7 +7,7 @@ module.exports = new GoogleStrategy(
   {
     clientID: configs.auth.google.clientId,
     clientSecret: configs.auth.google.clientSecret,
-    callbackURL: `${configs.damin}/auth/google/callback`,
+    callbackURL: `${configs.domain}/auth/google/callback`,
   },
   async (accessToken, refreshToken, profile, done) => {
     try {

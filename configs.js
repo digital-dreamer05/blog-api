@@ -27,7 +27,7 @@ module.exports = {
 
   isProduction: process.env.NODE_ENV === 'production',
 
-  damin:
+  domain:
     process.env.NODE_ENV === 'production'
       ? process.env.PRODUCTION_DOMAIN
       : process.env.LOCAL_DOMAIN,

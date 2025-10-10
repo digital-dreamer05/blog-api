@@ -162,14 +162,6 @@ exports.refreshToken = catchAsync(async (req, res, next) => {
   return res.json({ accessToken });
 });
 
-exports.logout = catchAsync(async (req, res, next) => {
-  const redisKey = `refreshToken:${req.user.id}`;
-
-  await redis.del(redisKey);
-
-  return res.status(200).json({ message: 'User logout successfully' });
-});
-
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.findAll({
     where: { isVerified: true },

@@ -84,7 +84,7 @@ exports.findBySlug = catchAsync(async (req, res, next) => {
     },
 
     include: [
-      { model: User, attributes: { exclude: ['passeord'] }, as: 'author' },
+      { model: User, attributes: { exclude: ['password'] }, as: 'author' },
       {
         model: Tag,
         attributes: ['title'],
