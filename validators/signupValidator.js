@@ -3,6 +3,7 @@ const yup = require('yup');
 const signupSchema = yup.object({
   name: yup
     .string()
+    .min(1, 'Name is required')
     .max(255, 'Name must be at most 255 characters')
     .required('Name is required'),
 
@@ -10,7 +11,10 @@ const signupSchema = yup.object({
     .string()
     .min(5, 'Username must be at least 5 characters')
     .max(255, 'Username must be at most 255 characters')
-    .matches(/^[a-zA-Z0-9]+([._]?[a-zA-Z0-9]+)*$/, 'Username is not valid')
+    .matches(
+      /^[a-zA-Z0-9]+([._]?[a-zA-Z0-9]+)*$/,
+      'Username can only contain letters, numbers, dots and underscores'
+    )
     .required('Username is required'),
 
   email: yup

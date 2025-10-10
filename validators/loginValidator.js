@@ -16,8 +16,8 @@ const loginSchema = yup.object({
   captchaUuid: yup.string().uuid().required(),
   captcha: yup
     .string()
-    .max(4, 'Captch must be at most 4 characters')
-    .required('captcha is required'),
+    .max(4, 'Captcha must be at most 4 characters')
+    .required('Captcha is required'),
 });
 
 module.exports = loginSchema;

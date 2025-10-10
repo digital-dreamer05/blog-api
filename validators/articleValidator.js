@@ -1,17 +1,21 @@
 const yup = require('yup');
 
-const articleSchema = yup.object().shape({
-  title: yup.string().max(255).required(),
-  content: yup.string().required(),
+const articleSchema = yup.object({
+  title: yup
+    .string()
+    .min(1, 'Title is required')
+    .max(255, 'Title must be at most 255 characters')
+    .required('Title is required'),
+
+  content: yup
+    .string()
+    .min(1, 'Content is required')
+    .required('Content is required'),
+
   tags: yup
-    .mixed()
-    .test('is-string-or-array', 'Tags must be string or array', (value) => {
-      return (
-        typeof value === 'string' ||
-        (Array.isArray(value) &&
-          value.every((item) => typeof item === 'string'))
-      );
-    })
+    .array()
+    .of(yup.string().min(1, 'Tag cannot be empty'))
+    .min(1, 'At least one tag is required')
     .required('Tags are required'),
 });
 
