@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Article</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Article</h1>
+      <nav>
+        <a href="/">Home</a>
+      </nav>
+    </header>
+    <main>
+      <div id="view"></div>
+    </main>
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script>
+      (async function () {
+        const params = new URLSearchParams(location.search);
+        const slug = params.get('slug');
+        if (!slug) return;
+        const res = await api.get(`/articles/${encodeURIComponent(slug)}`);
+        const a = res?.data || res;
+        const el = document.getElementById('view');
+        if (!a || !a.title) {
+          el.textContent = 'Not found';
+          return;
+        }
+        el.innerHTML = `
+        <article class="card" style="grid-template-columns:1fr;">
+          <img src="${(
+            api.baseUrl +
+            '/' +
+            (a.cover || 'images/covers/cover.png-1758009540815.png')
+          ).replace(
+            /(?<!:)\/\/+/,
+            '/'
+          )}" alt="cover" style="width:100%;height:240px;object-fit:cover" />
+          <h2>${a.title}</h2>
+          <div class="meta">By ${
+            a.author?.name || a.author?.username || 'Unknown'
+          }</div>
+          <div>${(a.content || '').replace(/\n/g, '<br>')}</div>
+          <div class="meta">Tags: ${(a.tags || []).join(', ')}</div>
+        </article>`;
+      })();
+    </script>
+  </body>
+</html>

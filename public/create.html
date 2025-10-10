@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Create Article</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Create Article</h1>
+      <nav>
+        <a href="/">Home</a>
+      </nav>
+    </header>
+    <main>
+      <form id="createForm">
+        <div class="error" id="err"></div>
+        <label>Title</label>
+        <input name="title" required />
+        <label>Content (Markdown)</label>
+        <textarea name="content" rows="10" required></textarea>
+        <label>Tags (comma separated)</label>
+        <input name="tags" placeholder="tag1,tag2" required />
+        <button type="submit">Publish</button>
+      </form>
+    </main>
+    <script src="/js/config.js"></script>
+    <script src="/js/api.js"></script>
+    <script>
+      document
+        .getElementById('createForm')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const body = Object.fromEntries(new FormData(e.target).entries());
+          const tags = body.tags
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean);
+          const res = await api.post('/articles', {
+            title: body.title,
+            content: body.content,
+            tags,
+          });
+          if (res && res.status === 'success') {
+            location.href = `/article.html?slug=${encodeURIComponent(
+              res.data.slug
+            )}`;
+          } else {
+            document.getElementById('err').textContent =
+              res?.message || 'Create failed';
+          }
+        });
+    </script>
+  </body>
+</html>
